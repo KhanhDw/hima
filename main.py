@@ -1,3 +1,4 @@
+# bậc 1 đến 7
 from .src.neuron.network.network import Network
 from .src.neuron.network.connector import connect
 from .src.neuron.core.input_neuron import InputNeuron

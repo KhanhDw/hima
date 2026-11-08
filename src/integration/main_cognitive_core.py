@@ -56,6 +56,17 @@ class MainCognitiveCore:
         self.net.add(self.out_b)
         self.net.add(self.out_c)
 
+        # Thêm kết nối ban đầu (giống cấu hình từ main.py cũ) để tín hiệu có thể lan truyền
+        from src.neuron.network.connector import connect
+        self.net.add_synapse(connect(self.input_neurons[0], self.out_a, weight=1.0, delay=1))
+        self.net.add_synapse(connect(self.input_neurons[1], self.out_b, weight=1.0, delay=1))
+        self.net.add_synapse(connect(self.input_neurons[2], self.out_c, weight=1.0, delay=1))
+
+        for i in range(3, 8):
+            self.net.add_synapse(connect(self.input_neurons[i], self.out_a, weight=0.2, delay=1))
+            self.net.add_synapse(connect(self.input_neurons[i], self.out_b, weight=0.2, delay=1))
+            self.net.add_synapse(connect(self.input_neurons[i], self.out_c, weight=0.2, delay=1))
+
         # 2. Khởi tạo các phân hệ nhận thức cơ sở (Cấp 3 - 7)
         self.encoder = Encoder(num_neurons=8, min_val=0.0, max_val=2.0)
         self.sequence_memory = SequenceMemory(max_history_length=10)
@@ -183,6 +194,43 @@ class MainCognitiveCore:
             "chunk_count": len(self.chunker.get_chunks()),
             "cognitive_state": cognitive_status["state"]
         }
+
+    def step(self, sensory_input):
+        """
+        Thực hiện một bước nhận thức tương tác trực tiếp với véc-tơ cảm giác đầu vào (dùng cho chat).
+        """
+        # A. Mã hóa biểu diễn (Cấp 3) & Bộ nhớ (Cấp 4)
+        latent = self.encoder.encode_state(sensory_input)
+        self.sequence_memory.append(latent)
+        self.working_memory.load(latent)
+
+        # Phát sóng thông tin qua Không gian làm việc toàn cục (Cấp 13)
+        conscious_packet = self.workspace.broadcast(latent, source_module="LinguisticBridge")
+
+        # B. Động lực, Tò mò & Tự sinh mục tiêu (Cấp 12)
+        drives = self.drive_motivator.update_drives(activity_cost=0.02)
+        curiosity_score = self.curiosity_engine.calculate_curiosity(sensory_input)
+        
+        cognitive_status = self.orchestrator.tick(sensory_input, drives, curiosity_score)
+        
+        new_goal = self.goal_generator.evaluate_and_generate(curiosity_score, sensory_input)
+        if new_goal:
+            self.goal_manager.set_goal([1, 0, 0, 0, 0, 1, 0, 0, 1])
+            cognitive_status["new_goal"] = new_goal
+
+        # C. Kích hoạt mạng SNN phần cứng với véc-tơ đầu vào
+        for _ in range(10):
+            for i, val in enumerate(sensory_input):
+                if val > 0.5 and i < len(self.input_neurons):
+                    self.input_neurons[i].stimulate(spike=1, time=self.net.clock.time)
+            self.net.step()
+
+        # D. Siêu học tập tinh chỉnh
+        current_lr = self.meta_learner.adapt(recent_accuracy=0.8)
+        cognitive_status["adaptive_learning_rate"] = current_lr
+        cognitive_status["focus"] = conscious_packet
+        
+        return cognitive_status
 
 if __name__ == "__main__":
     core = MainCognitiveCore()
