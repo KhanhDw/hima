@@ -23,6 +23,11 @@ class Synapse:
         self.pre = pre
         self.post = post
 
+        # --- Bổ sung Eligibility Trace ---
+        self.eligibility_trace = 0.0
+        self.trace_decay = 0.95  # Tỷ lệ suy giảm theo thời gian/step
+        self.learning_rate = 0.01
+
     def receive(
         self,
         spike,
@@ -59,6 +64,17 @@ class Synapse:
 
         return self.last_output
 
+    def update_trace(self, pre_spiked, post_spiked):
+        """Cập nhật vết dấu hiệu năng dựa trên xung của pre và post neuron"""
+        self.eligibility_trace *= self.trace_decay
+        if pre_spiked or post_spiked:
+            self.eligibility_trace += 1.0
+
+    def apply_reward_modulation(self, reward):
+        """Áp dụng phần thưởng dựa trên eligibility trace đã tích lũy"""
+        if self.eligibility_trace != 0.0:
+            self.weight += self.learning_rate * reward * self.eligibility_trace
+            self.clamp()
 
     def clamp(self):
 

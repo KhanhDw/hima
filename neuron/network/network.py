@@ -38,6 +38,14 @@ class Network:
                 neuron.step(time)
             )
 
+        # Cập nhật Eligibility Trace cho toàn bộ synapse sau mỗi bước thời gian
+        for synapse in self.synapses:
+            pre_spiked = getattr(synapse.pre, 'has_spiked', False) if synapse.pre else False
+            post_spiked = getattr(synapse.post, 'has_spiked', False) if synapse.post else False
+            
+            if hasattr(synapse, 'update_trace'):
+                synapse.update_trace(pre_spiked, post_spiked)
+
         return outputs
 
     def reset(self):

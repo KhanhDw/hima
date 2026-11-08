@@ -1,0 +1,425 @@
+Đây chính là thứ mà mình nghĩ đáng làm nhất lúc này.
+
+Hiện tại bạn đang nhìn framework theo:
+
+Neuron
+↓
+Plasticity
+↓
+RL
+
+
+Nhưng nếu mục tiêu là:
+
+Hệ tự học ngôn ngữ
+
+
+thì cần nhìn như một cây tiến hóa năng lực.
+
+Cấp 0 - Neuron
+
+ĐÃ CÓ
+
+Neuron
+├── Soma
+├── Dendrite
+├── Axon
+├── Synapse
+├── Delay
+└── Spike
+
+
+Khả năng đạt được:
+
+Truyền tín hiệu
+
+Cấp 1 - Plasticity
+
+ĐÃ CÓ
+
+Plasticity
+├── STDP
+├── R-STDP
+├── Homeostasis
+├── Structural Plasticity
+└── Weight Decay
+
+
+Khả năng:
+
+Biết thay đổi
+
+Cấp 2 - Goal Learning
+
+ĐANG LÀM
+
+RL
+├── Environment
+├── Agent
+├── EpisodeRunner
+├── RewardManager
+└── Trainer
+
+
+Khả năng:
+
+Biết đúng sai
+
+Cấp 3 - Representation Learning
+
+BƯỚC TIẾP THEO
+
+Hiện:
+
+"A"
+"B"
+"C"
+
+
+chỉ là nhãn.
+
+Bạn phải xây:
+
+Encoder
+
+
+Thành phần:
+
+representation/
+├── encoder.py
+├── feature_map.py
+├── population_code.py
+└── latent_vector.py
+
+
+Ví dụ:
+
+dog
+↓
+[0.32,0.91,0.14,...]
+
+
+Hệ học:
+
+Đặc trưng
+
+
+Khả năng mới:
+
+Biết vật giống vật
+
+Cấp 4 - Sequence Learning
+
+Đây là bước ngôn ngữ bắt đầu xuất hiện.
+
+Thành phần:
+
+memory/
+├── temporal_trace.py
+├── sequence_memory.py
+├── context_memory.py
+└── working_memory.py
+
+
+Ví dụ:
+
+tôi
+↓
+ăn
+↓
+cơm
+
+
+Hệ phải nhớ:
+
+thứ tự
+
+
+Khả năng mới:
+
+Biết trước sau
+
+Cấp 5 - Prediction
+
+Não thật gần như là cỗ máy dự đoán.
+
+Thành phần:
+
+prediction/
+├── predictor.py
+├── prediction_error.py
+├── confidence.py
+└── surprise.py
+
+
+Ví dụ:
+
+Tôi đang ăn ...
+
+
+↓
+
+đoán:
+
+cơm
+
+
+Khả năng mới:
+
+Dự đoán tương lai
+
+Cấp 6 - Concept Formation
+
+Đây là lúc từ ngữ xuất hiện.
+
+Thành phần:
+
+concept/
+├── concept.py
+├── concept_memory.py
+├── clustering.py
+└── semantic_space.py
+
+
+Ví dụ:
+
+cat
+mèo
+猫
+
+
+↓
+
+CONCEPT_CAT
+
+
+Khả năng mới:
+
+Biết ý nghĩa
+
+Cấp 7 - Vocabulary
+
+Bây giờ mới tới từ vựng.
+
+Thành phần:
+
+language/
+├── token.py
+├── vocabulary.py
+├── tokenizer.py
+└── symbol_binding.py
+
+
+Ví dụ:
+
+CONCEPT_CAT
+
+
+↓
+
+"cat"
+
+
+Khả năng mới:
+
+Gắn nghĩa với từ
+
+Cấp 8 - Grammar
+
+Thành phần:
+
+grammar/
+├── syntax_tree.py
+├── dependency_graph.py
+├── grammar_memory.py
+└── parser.py
+
+
+Ví dụ:
+
+Tôi ăn cơm
+
+
+khác:
+
+Cơm ăn tôi
+
+
+Khả năng mới:
+
+Biết cấu trúc câu
+
+Cấp 9 - Episodic Memory
+
+Đây là thứ gần như mọi dự án AI tự làm đều thiếu.
+
+Thành phần:
+
+episodic/
+├── episode.py
+├── episode_store.py
+├── retrieval.py
+└── consolidation.py
+
+
+Ví dụ:
+
+Hôm qua tôi đi chợ
+
+
+Khả năng mới:
+
+Biết ký ức
+
+Cấp 10 - Semantic Memory
+
+Thành phần:
+
+semantic/
+├── facts.py
+├── knowledge_graph.py
+├── relation.py
+└── ontology.py
+
+
+Ví dụ:
+
+Mèo là động vật
+
+
+Khả năng mới:
+
+Biết tri thức chung
+
+Cấp 11 - World Model
+
+Đây là bước cực kỳ khó.
+
+Thành phần:
+
+world/
+├── world_model.py
+├── object.py
+├── event.py
+├── causality.py
+└── simulation.py
+
+
+Ví dụ:
+
+Làm rơi ly
+↓
+Ly vỡ
+
+
+Khả năng mới:
+
+Hiểu nguyên nhân-kết quả
+
+Cấp 12 - Reasoning
+
+Thành phần:
+
+reasoning/
+├── inference.py
+├── planner.py
+├── logic.py
+└── hypothesis.py
+
+
+Ví dụ:
+
+A > B
+B > C
+
+
+↓
+
+A > C
+
+
+Khả năng mới:
+
+Suy luận
+
+Cấp 13 - Self Model
+
+Thành phần:
+
+self/
+├── self_model.py
+├── internal_state.py
+├── meta_memory.py
+└── introspection.py
+
+
+Ví dụ:
+
+Tôi biết rằng tôi không biết
+
+
+Khả năng mới:
+
+Tự nhận thức sơ khai
+
+Toàn bộ roadmap
+Neuron
+✅
+
+Plasticity
+✅
+
+Goal Learning
+✅
+
+Representation
+⬜
+
+Sequence Learning
+⬜
+
+Prediction
+⬜
+
+Concept Formation
+⬜
+
+Vocabulary
+⬜
+
+Grammar
+⬜
+
+Episodic Memory
+⬜
+
+Semantic Memory
+⬜
+
+World Model
+⬜
+
+Reasoning
+⬜
+
+Self Model
+⬜
+
+
+Nếu nhìn theo độ khó thực tế:
+
+Bạn đang ở khoảng 10-15%
+
+
+nhưng đó là 10-15% đúng hướng kiến trúc.
+
+Bước kế tiếp đáng làm nhất bây giờ là:
+
+Representation Learning
+├── encoder.py
+├── feature_map.py
+├── population_code.py
+└── latent_vector.py
+
+
+vì toàn bộ ngôn ngữ, ký ức, suy luận sau này đều phải xây trên representation trước. Không có representation thì không thể có concept, vocabulary hay grammar.

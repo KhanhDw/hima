@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "init": "pip install -r requirements.txt",
-    "start": "python main.py"
+    "start": "python main.py",
+    "clean:pycache": "python -c \"import pathlib, shutil; [shutil.rmtree(p) for p in pathlib.Path('.').rglob('__pycache__')]\""
   },
   "keywords": [],
   "author": "",

@@ -1,0 +1,19 @@
+mỗi neuron có các thành phần synapse - soma - axon - dendrite - (clock)
+
+phát triển thành mạng neuron
+
+mạng neuron có khả năng tự học tập và phát triển
+    -> bằng cách mộc thêm nhánh (axon và dendrite) và synapse liên kết giữa 2 nhánh
+
+quá trình học tập của mạng sẽ được dần tối ưu theo các "Tiểu vùng"
+    -> Tiểu vùng là quá trình đóng băng synapse trọng số cho nhiệm vụ cụ thể
+    -> trong tương lai -> mỗi synapse sẽ có mã "Tiểu vùng" mỗi synapse có thể làm việc cho cả 2 "Tiểu vùng" 
+    -> Tiểu vùng: không phải là một vùng độc lập làm nhiệm vụ cụ thể mà là một khu vực chịu trách nhiệm chính cho một việc cụ thể. nó có thể phụ trợ cho một vùng khác và ngược lại
+    -> cơ chế lan truyền và kích hoạt chéo (Cross-activation) giữa các tiểu vùng
+        -> khi một tiểu vùng chính quá tải hoặc thiếu hụt tín hiệu, các tiểu vùng phụ trợ sẽ kích hoạt các synapse chia sẻ để hỗ trợ xử lý
+    -> tự động phân rã và hình thành tiểu vùng động (Dynamic Sub-region Splitting)
+        -> khi xuất hiện một nhiệm vụ hoặc pattern hoàn toàn mới mà các tiểu vùng cũ không khớp, mạng tự động sinh ra tiểu vùng mới bám rễ từ vùng gần nhất
+    -> trạng thái đóng băng linh hoạt (Soft-freezing & Plasticity Modulation)
+        -> thay vì khóa cứng hoàn toàn, tiểu vùng đạt chuẩn sẽ chuyển sang trạng thái "chống nhiễu", chỉ cho phép vi chỉnh (fine-tuning) trọng số cực nhỏ thay đổi thay vì đóng băng vĩnh viễn
+    -> quản lý xung đột qua bộ điều phối tiểu vùng (Sub-region Arbiter)
+        -> giải quyết tranh chấp khi một synapse chung nhận tín hiệu mâu thuẫn từ nhiều tiểu vùng cùng lúc dựa trên lịch sử phần thưởng (Reward history)

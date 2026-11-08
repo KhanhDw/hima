@@ -11,31 +11,15 @@ class StructuralPlasticity:
     ):
         self.prune_threshold = prune_threshold
         self.growth_weight = growth_weight
-        self.activity_threshold = (
-            activity_threshold
-        )
+        self.activity_threshold = activity_threshold
 
     def prune(self, neuron):
-
-        before = len(
-            neuron.dendrite.synapses
-        )
-
+        before = len(neuron.dendrite.synapses)
         neuron.dendrite.synapses = [
-
-            syn
-
-            for syn
-            in neuron.dendrite.synapses
-
-            if syn.weight >
-            self.prune_threshold
+            syn for syn in neuron.dendrite.synapses
+            if syn.weight > self.prune_threshold
         ]
-
-        return (
-            before -
-            len(neuron.dendrite.synapses)
-        )
+        return before - len(neuron.dendrite.synapses)
 
     def grow(
         self,
@@ -43,7 +27,6 @@ class StructuralPlasticity:
         post_neuron,
         delay=1
     ):
-
         return connect(
             pre_neuron,
             post_neuron,
@@ -51,53 +34,40 @@ class StructuralPlasticity:
             delay=delay
         )
 
-    def should_connect(
-        self,
-        pre_neuron,
-        post_neuron
-    ):
-
-        return (
-
-            pre_neuron.firing_rate
-            >
-            self.activity_threshold
-
-            and
-
-            post_neuron.firing_rate
-            >
-            self.activity_threshold
-        )
-
-
     def maybe_grow(
         self,
         pre,
         post,
         delay=1
-    ):
-
+    , input_neurons=None, output_neurons=None):
+        """
+        Mọc synapse thông minh theo tiểu vùng (Sub-region / Modular Growth):
+        Chỉ cho phép mọc nếu cặp (pre, post) nằm trong cùng một tiểu vùng logic 
+        (ví dụ: Input thứ i đi chung với Output thứ i) để tránh chéo kênh.
+        """
         if pre is post:
             return None
 
-        if self.connected(
-            pre,
-            post
-        ):
+        if self.connected(pre, post):
             return None
 
+        # Nếu có định nghĩa danh sách tiểu vùng, ta giới hạn phạm vi mọc trong cụm độc lập
+        if input_neurons and output_neurons:
+            if pre in input_neurons and post in output_neurons:
+                # Kiểm tra đúng index tương ứng trong tiểu vùng (ví dụ: input[0] chỉ mọc vào output[0])
+                try:
+                    idx_pre = input_neurons.index(pre)
+                    idx_post = output_neurons.index(post)
+                    if idx_pre != idx_post:
+                        return None # Không cho phép mọc chéo tiểu vùng khác
+                except ValueError:
+                    pass
+
         if (
-            pre.firing_rate > 0.15
-            and
+            pre.firing_rate > 0.15 and  
             post.firing_rate > 0.15
         ):
-
-            return self.grow(
-                pre,
-                post,
-                delay
-            )
+            return self.grow(pre, post, delay)
 
         return None
 
@@ -106,10 +76,7 @@ class StructuralPlasticity:
         pre,
         post
     ):
-
         for syn in pre.axon.synapses:
-
             if syn.post is post:
                 return True
-
         return False
