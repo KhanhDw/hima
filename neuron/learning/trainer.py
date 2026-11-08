@@ -36,7 +36,8 @@ class Trainer:
                     post, 
                     delay=1, 
                     input_neurons=self.input_neurons, 
-                    output_neurons=self.output_neurons
+                    output_neurons=self.output_neurons,
+                    current_synapse_count=len(network.synapses)
                 )
                 if synapse:
                     network.add_synapse(synapse)

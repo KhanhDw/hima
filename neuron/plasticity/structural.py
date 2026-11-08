@@ -7,11 +7,13 @@ class StructuralPlasticity:
         self,
         prune_threshold=0.05,
         growth_weight=0.10,
-        activity_threshold=0.20
+        activity_threshold=0.60,  # Nâng ngưỡng kích hoạt lên cao để hạn chế mọc bừa bãi
+        max_synapses=35           # Đặt trần giới hạn tối đa số lượng synapse trong mạng
     ):
         self.prune_threshold = prune_threshold
         self.growth_weight = growth_weight
         self.activity_threshold = activity_threshold
+        self.max_synapses = max_synapses
 
     def prune(self, neuron):
         before = len(neuron.dendrite.synapses)
@@ -38,34 +40,40 @@ class StructuralPlasticity:
         self,
         pre,
         post,
-        delay=1
-    , input_neurons=None, output_neurons=None):
+        delay=1,
+        input_neurons=None,
+        output_neurons=None,
+        current_synapse_count=0
+    ):
         """
-        Mọc synapse thông minh theo tiểu vùng (Sub-region / Modular Growth):
-        Chỉ cho phép mọc nếu cặp (pre, post) nằm trong cùng một tiểu vùng logic 
-        (ví dụ: Input thứ i đi chung với Output thứ i) để tránh chéo kênh.
+        Mọc synapse thông minh theo tiểu vùng (Sub-region / Modular Growth) 
+        kèm theo kiểm soát giới hạn trần số lượng synapse.
         """
+        # Nếu tổng số synapse đã đạt giới hạn trần, tuyệt đối không mọc thêm
+        if current_synapse_count >= self.max_synapses:
+            return None
+
         if pre is post:
             return None
 
         if self.connected(pre, post):
             return None
 
-        # Nếu có định nghĩa danh sách tiểu vùng, ta giới hạn phạm vi mọc trong cụm độc lập
+        # Nếu có định nghĩa danh sách tiểu vùng, giới hạn phạm vi mọc trong cụm độc lập
         if input_neurons and output_neurons:
             if pre in input_neurons and post in output_neurons:
-                # Kiểm tra đúng index tương ứng trong tiểu vùng (ví dụ: input[0] chỉ mọc vào output[0])
                 try:
                     idx_pre = input_neurons.index(pre)
                     idx_post = output_neurons.index(post)
                     if idx_pre != idx_post:
-                        return None # Không cho phép mọc chéo tiểu vùng khác
+                        return None 
                 except ValueError:
                     pass
 
+        # Chỉ cho phép mọc khi tần số hoạt động vượt qua ngưỡng cao mới
         if (
-            pre.firing_rate > 0.15 and  
-            post.firing_rate > 0.15
+            pre.firing_rate > self.activity_threshold and  
+            post.firing_rate > self.activity_threshold
         ):
             return self.grow(pre, post, delay)
 
