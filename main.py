@@ -1,34 +1,34 @@
-from src.neuron.network.network import Network
-from src.neuron.network.connector import connect
-from src.neuron.core.input_neuron import InputNeuron
-from src.neuron.core.neuron import Neuron
-from src.neuron.learning.trainer import Trainer
-from src.neuron.learning.reward_manager import RewardManager
-from src.neuron.learning.sub_region_manager import SubRegionManager
-from src.neuron.rl.agent import Agent
-from src.neuron.rl.environment import Environment
+from .src.neuron.network.network import Network
+from .src.neuron.network.connector import connect
+from .src.neuron.core.input_neuron import InputNeuron
+from .src.neuron.core.neuron import Neuron
+from .src.neuron.learning.trainer import Trainer
+from .src.neuron.learning.reward_manager import RewardManager
+from .src.neuron.learning.sub_region_manager import SubRegionManager
+from .src.neuron.rl.agent import Agent
+from .src.neuron.rl.environment import Environment
 
 # 1. Module Biểu diễn & Bộ nhớ (Cấp 3 & 4)
-from src.representation.encoder import Encoder
-from src.memory.sequence_memory import SequenceMemory
-from src.memory.context_memory import ContextMemory
-from src.memory.working_memory import WorkingMemory
+from .src.representation.encoder import Encoder
+from .src.memory.sequence_memory import SequenceMemory
+from .src.memory.context_memory import ContextMemory
+from .src.memory.working_memory import WorkingMemory
 
 # 2. Module Dự đoán (Cấp 5)
-from src.prediction.predictor import Predictor
-from src.prediction.prediction_error import PredictionError
-from src.prediction.confidence import ConfidenceEstimator
-from src.prediction.surprise import SurpriseCalculator
+from .src.prediction.predictor import Predictor
+from .src.prediction.prediction_error import PredictionError
+from .src.prediction.confidence import ConfidenceEstimator
+from .src.prediction.surprise import SurpriseCalculator
 
 # 3. Module Trừu tượng hóa Phân cấp (Cấp 6)
-from src.hierarchy.chunker import Chunker
-from src.hierarchy.abstraction_layer import AbstractionLayer
-from src.hierarchy.meta_representation import MetaRepresentation
+from .src.hierarchy.chunker import Chunker
+from .src.hierarchy.abstraction_layer import AbstractionLayer
+from .src.hierarchy.meta_representation import MetaRepresentation
 
 # 4. Module Mục tiêu & Lập kế hoạch (Cấp 7)
-from src.planning.goal_manager import GoalManager
-from src.planning.planner import Planner
-from src.planning.intrinsic_reward import IntrinsicRewardCalculator
+from .src.planning.goal_manager import GoalManager
+from .src.planning.planner import Planner
+from .src.planning.intrinsic_reward import IntrinsicRewardCalculator
 
 
 # =========================
@@ -132,7 +132,6 @@ def run_full_cognitive_episode(learning=True):
                 abstraction_layer.elevate(history[-1], active_chunk_id)
                 meta_rep.link("HighLevelConcept", active_chunk_id)
 
-        # D. Goal & Planning (Cấp 7)
         # D. Goal & Planning (Cấp 7)
         current_goal = goal_manager.get_goal() or []
         plan = planner.generate_plan(latent, current_goal)
