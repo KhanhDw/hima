@@ -1,0 +1,14 @@
+{
+  "name": "haizz",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "init": "pip install -r requirements.txt",
+    "start": "python main.py"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}

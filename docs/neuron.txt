@@ -1,0 +1,28 @@
+InputNeuron
++
+LIF
++
+Refractory
++
+Delay
++
+STDP
++
+Homeostasis
++
+Structural Plasticity
++
+Network
+---
+Hebbian learning
+STDP learning
+--
+Network
+↓
+Agent
+↓
+Environment
+↓
+Reward
+↓
+R-STDP
