@@ -1,7 +1,7 @@
-from neuron.plasticity.homeostasis import Homeostasis
-from neuron.plasticity.structural import StructuralPlasticity
-from neuron.learning.plasticity_manager import PlasticityManager
-from neuron.learning.reward_manager import RewardManager
+from src.neuron.plasticity.homeostasis import Homeostasis
+from src.neuron.plasticity.structural import StructuralPlasticity
+from src.neuron.learning.plasticity_manager import PlasticityManager
+from src.neuron.learning.reward_manager import RewardManager
 
 class Trainer:
 
