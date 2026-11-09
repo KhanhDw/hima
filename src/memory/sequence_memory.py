@@ -16,10 +16,13 @@ class SequenceMemory:
             self.history.pop(0) # Giữ lại cửa sổ trượt lịch sử gần nhất
 
     def get_sequence(self):
-        """
-        Trả về toàn bộ chuỗi lịch sử hiện tại.
-        """
-        return self.history
+        return [list(v) for v in self.history]   # deep copy
+
+    def __len__(self):
+        return len(self.history)
+
+    def last(self, k=1):
+        return self.history[-k:] if self.history else []
 
     def reset(self):
         """

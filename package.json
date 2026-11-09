@@ -6,6 +6,7 @@
   "scripts": {
     "init": "pip install -r requirements.txt",
     "start": "python main.py",
+    "train": "python train_language.py",
     "snn": "python -m src.integration.main_cognitive_core",
     "clean:pycache": "python -c \"import pathlib, shutil; [shutil.rmtree(p) for p in pathlib.Path('.').rglob('__pycache__')]\""
   },

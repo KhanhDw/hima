@@ -1,29 +1,22 @@
 class WorkingMemory:
     def __init__(self, capacity=5):
-        """
-        Bộ nhớ làm việc (Working Memory) đóng vai trò RAM ngắn hạn,
-        giới hạn số lượng mục thông tin được giữ active trong tầm nhìn trực tiếp của mạng.
-        """
         self.capacity = capacity
-        self.slots = []
+        self.slots = []   # [(importance, item), ...]
 
-    def load(self, item):
-        """
-        Đưa một item (token/latent vector) mới vào bộ nhớ làm việc. 
-        Nếu vượt quá dung lượng (capacity), item cũ nhất sẽ bị đẩy ra (FIFO).
-        """
-        self.slots.append(item)
+    def load(self, item, importance=1.0):
+        self.slots.append((importance, item))
         if len(self.slots) > self.capacity:
-            self.slots.pop(0)
+            self.slots.sort(key=lambda x: -x[0])
+            self.slots = self.slots[:self.capacity]
 
     def get_contents(self):
-        """
-        Trích xuất toàn bộ nội dung đang có trong RAM ngắn hạn.
-        """
-        return self.slots
+        return [item for _, item in self.slots]
+
+    def get_prioritized(self):
+        return [(imp, item) for imp, item in self.slots]
+
+    def __len__(self):
+        return len(self.slots)
 
     def clear(self):
-        """
-        Làm sạch bộ nhớ làm việc.
-        """
         self.slots = []

@@ -2,83 +2,129 @@ import random
 
 
 class Environment:
+    """
+    Môi trường huấn luyện 2 nhánh cho SNN.
 
-    def __init__(self):
-        self.branch_a = [0, 1, 2, 1, 0]
-        self.branch_b = [0, 1, 0, 2, 0]
-        
+    State vector 8 chiều — KHỚP với Encoder(num_neurons=8):
+      [0:3]  value one-hot:    0=[1,0,0], 1=[0,1,0], 2=[0,0,1]
+      [3:6]  position binary:  0=000, 1=001, ..., 7=111
+      [6:8]  branch one-hot:   A=[1,0], B=[0,1]
+
+    Branches 8 bước — khớp 3-bit position (0-7).
+    Mặc định terminate_on_wrong=False để SNN có đủ training signal
+    (tránh episode kết thúc sau 1-2 step khi network còn random).
+    """
+
+    def __init__(self, terminate_on_wrong: bool = False):
+        # 8 bước mỗi nhánh — pattern khác nhau để network phải dùng branch flag
+        self.branch_a = [0, 1, 2, 0, 1, 2, 0, 1]
+        self.branch_b = [1, 2, 0, 1, 2, 0, 1, 2]
+        self.branches = [self.branch_a, self.branch_b]
+
+        self.terminate_on_wrong = terminate_on_wrong
+
+        self.branch_id = 0
         self.current_branch = self.branch_a
         self.target_sequence = self.current_branch
         self.current_step_idx = 0
-        self.branch_id = 0 # 0 cho Branch A, 1 cho Branch B
-        
-        # Mở rộng vector trạng thái lên 9 chiều: 
-        # 3 chiều đầu (giá trị), 5 chiều sau (vị trí bước), 1 chiều cuối (Branch Flag)
-        self.current_state_vector = [1, 0, 0, 1, 0, 0, 0, 0, 1]
+        self.current_state_vector = self._encode_state(0, 0)
+
+    # ──────────────────────────────────────────────────────────
+    # Encoding — 8 dims, khớp input_neurons/Encoder
+    # ──────────────────────────────────────────────────────────
+
+    def _encode_state(self, target: int, step_idx: int) -> list:
+        # 3 dims: value one-hot
+        val = [0, 0, 0]
+        if target in (0, 1, 2):
+            val[target] = 1
+
+        # 3 dims: step_idx as binary (0-7 vừa 3 bit)
+        idx_clamped = step_idx & 0x7
+        pos = [
+            (idx_clamped >> 2) & 1,
+            (idx_clamped >> 1) & 1,
+            idx_clamped & 1,
+        ]
+
+        # 2 dims: branch one-hot
+        branch = [1, 0] if self.branch_id == 0 else [0, 1]
+
+        return val + pos + branch
+
+    # ──────────────────────────────────────────────────────────
+    # API
+    # ──────────────────────────────────────────────────────────
 
     def reset(self):
+        """Bắt đầu episode mới — random branch. Trả (state_vector, target)."""
         self.branch_id = random.choice([0, 1])
-        self.current_branch = self.branch_a if self.branch_id == 0 else self.branch_b
+        self.current_branch = self.branches[self.branch_id]
         self.target_sequence = self.current_branch
         self.current_step_idx = 0
-        self.update_state_vector()
-        return self.current_state_vector, self.target_sequence[self.current_step_idx]
 
-    def update_state_vector(self):
-        target = self.target_sequence[self.current_step_idx]
-
-        # 1. Mã hóa giá trị target (3 chiều đầu)
-        val_vec = [0, 0, 0]
-        if target == 0:
-            val_vec = [1, 0, 0]
-        elif target == 1:
-            val_vec = [0, 1, 0]
-        elif target == 2:
-            val_vec = [0, 0, 1]
-
-        # 2. Mã hóa vị trí bước (5 chiều tiếp theo - One-hot encoding)
-        pos_vec = [0, 0, 0, 0, 0]
-        if 0 <= self.current_step_idx < len(self.target_sequence):
-            pos_vec[self.current_step_idx] = 1
-
-        # 3. Mã hóa Branch Flag (1 chiều cuối: [1, 0] cho nhánh A, [0, 1] hoặc giá trị phân biệt cho nhánh B)
-        # Ở đây ta dùng 1 chiều đơn giản: 1 nếu là nhánh A, 0 nếu là nhánh B
-        branch_vec = [1 if self.branch_id == 0 else 0]
-
-        self.current_state_vector = val_vec + pos_vec + branch_vec
+        target = self.target_sequence[0]
+        self.current_state_vector = self._encode_state(target, 0)
+        return list(self.current_state_vector), target
 
     def observe(self):
-        target = self.target_sequence[self.current_step_idx]
-        return self.current_state_vector, target
+        """Trả (state_vector, target hiện tại) — có guard."""
+        if not self.target_sequence:
+            return list(self.current_state_vector), 0
+        idx = min(self.current_step_idx, len(self.target_sequence) - 1)
+        target = self.target_sequence[idx]
+        return list(self.current_state_vector), target
 
     def step(self, action):
-        expected_target = self.target_sequence[self.current_step_idx]
+        """
+        Trả (next_state_vector, reward, done).
+        Mặc định: sai action → reward=-1, KHÔNG kết thúc episode
+        (chỉ kết thúc khi hết sequence hoặc terminate_on_wrong=True).
+        """
+        if self.current_step_idx >= len(self.target_sequence):
+            return list(self.current_state_vector), 0.0, True
 
-        if action == expected_target:
+        expected = self.target_sequence[self.current_step_idx]
+
+        if action == expected:
             reward = 1.0
             self.current_step_idx += 1
 
             if self.current_step_idx >= len(self.target_sequence):
                 done = True
                 self.current_step_idx = 0
+                self.current_state_vector = self._encode_state(0, 0)
             else:
                 done = False
-
-            self.update_state_vector()
+                next_target = self.target_sequence[self.current_step_idx]
+                self.current_state_vector = self._encode_state(
+                    next_target, self.current_step_idx
+                )
         else:
             reward = -1.0
-            done = True
-            self.current_step_idx = 0
-            self.update_state_vector()
+            if self.terminate_on_wrong:
+                done = True
+                self.current_step_idx = 0
+                self.current_state_vector = self._encode_state(
+                    self.target_sequence[0], 0
+                )
+            else:
+                # Không kết thúc — chỉ phạt. State giữ nguyên để SNN thử lại.
+                done = False
+                target = self.target_sequence[self.current_step_idx]
+                self.current_state_vector = self._encode_state(
+                    target, self.current_step_idx
+                )
 
-        return self.current_state_vector, reward, done
+        return list(self.current_state_vector), reward, done
+
+    # ──────────────────────────────────────────────────────────
+    # Legacy helpers (giữ để tương thích)
+    # ──────────────────────────────────────────────────────────
 
     def reward(self, action, target):
-        if action == target:
-            return 1.0
-        return -1.0
+        return 1.0 if action == target else -1.0
 
     def evaluate(self, action, target):
         reward = self.reward(action, target)
-        done = reward > 0
-        return reward, done
+        return reward, reward > 0

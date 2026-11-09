@@ -1,26 +1,33 @@
+import time
+
 class ContextMemory:
     def __init__(self):
-        """
-        Bộ nhớ ngữ cảnh (Context Memory) lưu trữ trạng thái bối cảnh hiện tại 
-        (ví dụ: mã nhận diện nhánh, trạng thái môi trường hiện tại) để định hướng 
-        cho mạng xử lý đúng hướng khi gặp các tín hiệu lặp lại.
-        """
         self.current_context = {}
+        self.history = []
+        self.max_history = 100
 
-    def set_context(self, key, value):
-        """
-        Thiết lập hoặc cập nhật một giá trị bối cảnh.
-        """
-        self.current_context[key] = value
+    def set_context(self, key, value, scope="global"):
+        self.current_context.setdefault(scope, {})[key] = value
 
-    def get_context(self, key):
-        """
-        Lấy giá trị của một bối cảnh cụ thể.
-        """
-        return self.current_context.get(key, None)
+    def get_context(self, key, scope="global", default=None):
+        return self.current_context.get(scope, {}).get(key, default)
 
-    def clear(self):
-        """
-        Xóa toàn bộ ngữ cảnh khi đổi tác vụ hoặc kết thúc phiên.
-        """
+    def snapshot(self):
+        """Trả dict phẳng để world_model dùng làm context."""
+        snap = {}
+        for scope, kv in self.current_context.items():
+            for k, v in kv.items():
+                snap[f"{scope}.{k}"] = v
+        snap["_timestamp"] = time.time()
+        return snap
+
+    def commit(self):
+        """Lưu context hiện tại vào history rồi mới reset."""
+        self.history.append(self.snapshot())
+        if len(self.history) > self.max_history:
+            self.history.pop(0)
+
+    def clear(self, commit=False):
+        if commit:
+            self.commit()
         self.current_context = {}
